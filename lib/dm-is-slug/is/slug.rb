@@ -169,10 +169,15 @@ module DataMapper
           return unless self.class.respond_to?(:slug_options) && self.class.slug_options
           raise InvalidSlugSourceError, 'Invalid slug source.' unless slug_source_property || self.respond_to?(slug_source)
           return unless stale_slug?
+
           attribute_set :slug, unique_slug
         end
 
         def unique_slug
+          # We can't do much with nothing. We'll assign nil to the slug property and 
+          # let the validations take care of the rest
+          return nil if slug_source_value == nil
+
           max_length = self.class.send(:get_slug_length)
           base_slug = ::DataMapper::Is::Slug.escape(slug_source_value)[0, max_length]
           # Assuming that 5 digits is more than enought

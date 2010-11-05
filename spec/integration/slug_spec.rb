@@ -266,6 +266,12 @@ describe DataMapper::Is::Slug do
       @post2.slug.should == ('a' * (@post2.class.slug_property.length - 2) + '-2')
     end
 
+    it "should assign the slug to nil if the slug source is nil" do
+      @post1.title = nil
+      @post1.save.should be_false
+      @post1.slug.shoud be_nil
+    end
+
     describe 'editing' do
       before :each do
         Post2.all.destroy!

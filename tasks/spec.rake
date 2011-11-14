@@ -1,5 +1,7 @@
+spec_root = File.join(File.dirname( File.dirname( __FILE__ ) ), 'spec')
+
 spec_defaults = lambda do |spec|
-  spec.pattern    = 'spec/**/*_spec.rb'
+  spec.pattern    = File.join( spec_root, '**', '*_spec.rb')
   spec.libs      << 'lib' << 'spec'
   spec.spec_opts << '--options' << 'spec/spec.opts'
 end
@@ -21,7 +23,7 @@ begin
   Spec::Rake::SpecTask.new(:rcov) do |rcov|
     spec_defaults.call(rcov)
     rcov.rcov      = true
-    rcov.rcov_opts = File.read('spec/rcov.opts').split(/\s+/)
+    rcov.rcov_opts = File.read( File.join(spec_root, 'rcov.opts') ).split(/\s+/)
   end
 
   RCov::VerifyTask.new(:verify_rcov => :rcov) do |rcov|
@@ -35,7 +37,7 @@ rescue LoadError
   end
 end
 
-task :spec => :check_dependencies
-task :rcov => :check_dependencies
+# task :spec => :check_dependencies
+# task :rcov => :check_dependencies
 
 task :default => :spec

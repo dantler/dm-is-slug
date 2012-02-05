@@ -78,11 +78,11 @@ group :runtime do # Runtime dependencies (as in the gemspec)
   if ENV['EXTLIB']
     gem 'extlib',        '~> 0.9.15', :git => "#{DATAMAPPER}/extlib.git"
   else
-    gem 'activesupport', '~> 3.0.0',  :git => 'git://github.com/rails/rails.git', :branch => '3-0-stable', :require => nil
+    gem 'activesupport', '~> 3.1.0'
   end
 
-  gem 'dm-core',         DM_VERSION #, :git => "#{DATAMAPPER}/dm-core.git"
-  gem 'dm-validations',  DM_VERSION #, :git => "#{DATAMAPPER}/dm-validations.git"
+  gem 'dm-core',         DM_VERSION
+  gem 'dm-validations',  DM_VERSION
 
   gem 'unidecode',         '~> 1.0.0'
 
@@ -91,7 +91,7 @@ end
 group(:development) do # Development dependencies (as in the gemspec)
 
   gem 'rake',           '~> 0.8.7'
-  gem 'rspec',          '~> 1.3.2'
+  gem 'rspec',          '~> 2.6.0'
   gem 'jeweler',        '~> 1.4'
 
 end

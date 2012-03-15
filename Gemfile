@@ -71,7 +71,7 @@
 source 'http://rubygems.org'
 
 DATAMAPPER = 'git://github.com/datamapper'
-DM_VERSION = '~> 1.0.2'
+DM_VERSION = '~> 1.2.0'
 
 group :runtime do # Runtime dependencies (as in the gemspec)
 
@@ -112,7 +112,7 @@ group :datamapper do # We need this because we want to pin these dependencies to
   adapters = ENV['ADAPTER'] || ENV['ADAPTERS']
   adapters = adapters.to_s.tr(',', ' ').split.uniq - %w[ in_memory ]
 
-  DO_VERSION     = '~> 0.10.2'
+  DO_VERSION     = '~> 0.10.8'
   DM_DO_ADAPTERS = %w[ sqlite postgres mysql oracle sqlserver ]
 
   if (do_adapters = DM_DO_ADAPTERS & adapters).any?

@@ -1,3 +1,4 @@
+require 'iconv'
 require 'unidecode'
 require 'dm-core'
 require 'dm-core/support/chainable'

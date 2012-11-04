@@ -78,20 +78,20 @@ group :runtime do # Runtime dependencies (as in the gemspec)
   if ENV['EXTLIB']
     gem 'extlib',        '~> 0.9.15', :git => "#{DATAMAPPER}/extlib.git"
   else
-    gem 'activesupport', '~> 3.0.0',  :git => 'git://github.com/rails/rails.git', :branch => '3-0-stable', :require => nil
+    gem 'activesupport', '~> 3.2.8', :require => nil
   end
 
   gem 'dm-core',         DM_VERSION, :git => "#{DATAMAPPER}/dm-core.git"
   gem 'dm-validations',  DM_VERSION, :git => "#{DATAMAPPER}/dm-validations.git"
 
-  gem 'unidecode',         '~> 1.0.0'
+  #gem 'unidecode',         :git => "git://github.com/luma/forked_ud.git"
 
 end
 
 group(:development) do # Development dependencies (as in the gemspec)
 
   gem 'rake',           '~> 0.8.7'
-  gem 'rspec',          '~> 1.3', :git => 'git://github.com/snusnu/rspec', :branch => 'heckle_fix_plus_gemfile'
+  gem 'rspec',          '~> 1.3.2'
   gem 'jeweler',        '~> 1.4'
 
 end
@@ -137,7 +137,7 @@ group :datamapper do # We need this because we want to pin these dependencies to
   plugins = plugins.to_s.tr(',', ' ').split.push('dm-migrations').uniq
 
   plugins.each do |plugin|
-    gem plugin, DM_VERSION, :git => "#{DATAMAPPER}/#{plugin}.git"
+    gem plugin, DM_VERSION#, :git => "#{DATAMAPPER}/#{plugin}.git"
   end
 
 end

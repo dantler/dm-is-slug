@@ -1,4 +1,4 @@
-require 'unidecode'
+# require 'unidecode'
 require 'dm-core'
 require 'dm-core/support/chainable'
 require 'dm-validations'
@@ -174,7 +174,7 @@ module DataMapper
         end
 
         def unique_slug
-          # We can't do much with nothing. We'll assign nil to the slug property and 
+          # We can't do much with nothing. We'll assign nil to the slug property and
           # let the validations take care of the rest
           return nil if slug_source_value == nil
 

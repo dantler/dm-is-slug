@@ -81,8 +81,8 @@ group :runtime do # Runtime dependencies (as in the gemspec)
     gem 'activesupport', '~> 3.2.8', :require => nil
   end
 
-  gem 'dm-core',         DM_VERSION, :git => "#{DATAMAPPER}/dm-core.git"
-  gem 'dm-validations',  DM_VERSION, :git => "#{DATAMAPPER}/dm-validations.git"
+  gem 'dm-core',         DM_VERSION#, :git => "#{DATAMAPPER}/dm-core.git"
+  gem 'dm-validations',  DM_VERSION#, :git => "#{DATAMAPPER}/dm-validations.git"
 
   #gem 'unidecode',         :git => "git://github.com/luma/forked_ud.git"
 
@@ -126,7 +126,7 @@ group :datamapper do # We need this because we want to pin these dependencies to
       gem "do_#{adapter}", DO_VERSION, options.dup
     end
 
-    gem 'dm-do-adapter', DM_VERSION, :git => "#{DATAMAPPER}/dm-do-adapter.git"
+    gem 'dm-do-adapter', DM_VERSION#, :git => "#{DATAMAPPER}/dm-do-adapter.git"
   end
 
   adapters.each do |adapter|

@@ -292,6 +292,27 @@ describe DataMapper::Is::Slug do
         post = Post2.first
         post.slug.should == 'the-other-post'
       end
+
+      it "should not increase slug number needlessly" do
+        @post.update(:title => "The Post").should be_true
+        @post.reload
+        @post.slug.should == 'the-post'
+      end
+
+      it "should not increase slug number needlessly" do
+        5.times{Post2.create :title => 'The Post', :content => 'The content.'}
+        Post2.all[Post2.count-5..Post2.count-1]
+
+        Post2.all.map{|post| post.slug[/\d+/].to_i}.compact.max.should == 6
+
+        Post2.all.map{|post| 
+          post.destroy! if post.slug[/\d+/].to_i >= 2 
+          }
+
+        5.times{Post2.create :title => 'The Post', :content => 'The content.'}
+        Post2.all.map{|post| post.slug[/\d+/].to_i}.compact.max.should == 6
+      end
+
     end
 
     describe 'scoping' do

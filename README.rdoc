@@ -70,3 +70,7 @@ It's recommended to use bundler in development.
 This will install all dependencies so that you could run specs.
 
   bundle exec rake spec ADAPTER=sqlite
+
+Alternatively you can run the spec tests like this:
+
+  rsped /spec/integration/slug_spec.rb

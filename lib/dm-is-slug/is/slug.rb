@@ -15,7 +15,7 @@ module DataMapper
       # @param [String] str A string to escape for use as a slug
       # @return [String] an URL-safe string
       def self.escape(str)
-        s = str.encode("ASCII", {})
+        s = str.to_ascii
         s.gsub!(/\W+/, ' ')
         s.strip!
         s.downcase!

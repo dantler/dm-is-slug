@@ -78,13 +78,11 @@ group :runtime do # Runtime dependencies (as in the gemspec)
   if ENV['EXTLIB']
     gem 'extlib',        '~> 0.9.15', :git => "#{DATAMAPPER}/extlib.git"
   else
-    gem 'activesupport', '~> 3.2.8', :require => nil
+    #gem 'active_support', '~> 3.2.8', :require => nil
   end
 
   gem 'dm-core',         DM_VERSION#, :git => "#{DATAMAPPER}/dm-core.git"
   gem 'dm-validations',  DM_VERSION#, :git => "#{DATAMAPPER}/dm-validations.git"
-
-  #gem 'unidecode',         :git => "git://github.com/luma/forked_ud.git"
 
 end
 

@@ -154,7 +154,6 @@ module DataMapper
         # 2. the slug source value is nil or empty
         # 3. scope is not changed
         def stale_slug?
-          binding.pry if $debug == true
           stale = false
           if new?
             #puts "NEW and stale"

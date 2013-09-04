@@ -154,13 +154,62 @@ module DataMapper
         # 2. the slug source value is nil or empty
         # 3. scope is not changed
         def stale_slug?
-          !(
-            (permanent_slug? && !slug.blank?) ||
-            slug_source_value.blank?
-          ) ||
-          !(!new? && (dirty_attributes.keys.map(&:name) &
-                      (self.class.slug_options[:scope] || [])).compact.blank?
-          )
+          binding.pry if $debug == true
+          stale = false
+          if new?
+            #puts "NEW and stale"
+            stale = true
+          end
+
+          if (permanent_slug? && (slug.nil? || slug.empty?)) ||
+             (slug_source_value.nil? || slug_source_value.empty?)
+            #puts "Slug is empty and doesn't have a valid value"
+            stale = true
+          end
+
+          return true if stale == true
+
+          if (!permanent_slug? && false == dirty_attributes.keys.map(&:name).empty?)
+            # Test for staleness. Does our dirty attribute change the slug
+            # source value? Lets do a test.
+            dirty_attributes.keys.map(&:name).each do |key|
+              prev_value = self.slug_source_value
+              prev_key = self.send(key)
+
+              # Modify the information at :key
+              self.send "#{key}=", nil
+
+              # Test the slug source value for differences. This might
+              # outright fail due to us setting the property to nil, so
+              # lets call it stale when that happens.
+              begin
+                if self.slug_source_value != prev_value
+                  #puts "Stale due to affected property
+                  stale = true
+                end
+              rescue
+                #puts "Stale due to affected property
+                stale = true
+              end
+
+              # Restore key to what it was before.
+              self.send "#{key}=", prev_key
+
+              break if stale == true
+
+            end
+
+          end
+
+          return true if stale == true
+
+          unless (dirty_attributes.keys.map(&:name) &
+                      (self.class.slug_options[:scope] || [])).empty?
+            #puts "Stale due to scope change"
+            stale = true
+          end
+
+          stale
         end
 
         private
@@ -173,6 +222,8 @@ module DataMapper
           attribute_set :slug, unique_slug
         end
 
+        # This function generates a unique slug for the "slugged" class based
+        # upon its slug source value.
         def unique_slug
           # We can't do much with nothing. We'll assign nil to the slug property and
           # let the validations take care of the rest
@@ -208,17 +259,42 @@ module DataMapper
             end
           end
 
-          max_index = slugs.map do |s|
-            self.class.all(not_self_conditions.merge(scope_conditions).merge :slug.like => "#{s}-%")
+          index_array = slugs.map do |s|
+            # TODO: Will this break for slugs with large trailing digits which
+            # shorten the "s" string due to space constraints?
+            self.model.all(not_self_conditions.merge(scope_conditions).merge :slug.like => "#{s}-%")
           end.flatten.map do |r|
-            index = r.slug.gsub /^(#{slugs.join '|'})-/, ''
+            index = r.slug.gsub(/^(#{slugs.join '|'})-/, '')
             index =~ /\d+/ ? index.to_i : nil
-          end.compact.max
+          end.compact
 
-          new_index = if max_index.nil?
-            self.class.first(not_self_conditions.merge(scope_conditions).merge :slug => base_slug).present? ? 2 : 1
+          max_index = index_array.max
+
+          new_index = if index_array.empty?
+            self.class.first(not_self_conditions.merge(scope_conditions).merge :slug => base_slug).nil? ? 1 : 2
           else
-            max_index + 1
+            if max_index > index_array.count + 1
+              # Indicates we may have a sparse array.  We could reuse an index!
+              # Lets find the index which can be reused.
+              empty_index = nil
+              index_array.sort!
+              [2..index_array.last].each_index do |i|
+                if index_array[i] != 2+i
+                  empty_index = 2+i
+                  break
+                end
+              end
+
+              if empty_index.nil?
+                max_index + 1
+              else
+                empty_index
+              end
+
+            else
+              # Default to bumping the max index by 1 to use in our slug
+              max_index + 1
+            end
           end
 
           if new_index > 1

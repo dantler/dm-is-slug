@@ -149,18 +149,67 @@ module DataMapper
           self.send(slug_source)
         end
 
-        # The slug is not stale if
-        # 1. the slug is permanent, and slug column has something valid in it
-        # 2. the slug source value is nil or empty
-        # 3. scope is not changed
+        # The slug is stale if
+        # 1. the slug is new
+        # 2. the slug is empty/has an invalid value
+        # 3. a property which affects the slug is dirty
+        # 4. scope change
         def stale_slug?
-          !(
-            (permanent_slug? && !slug.blank?) ||
-            slug_source_value.blank?
-          ) ||
-          !(!new? && (dirty_attributes.keys.map(&:name) &
-                      (self.class.slug_options[:scope] || [])).compact.blank?
-          )
+          stale = false
+          if new?
+            #puts "NEW and stale"
+            stale = true
+          end
+
+          if (permanent_slug? && (slug.nil? || slug.empty?)) ||
+             (slug_source_value.nil? || slug_source_value.empty?)
+            #puts "Slug is empty and doesn't have a valid value"
+            stale = true
+          end
+
+          return true if stale == true
+
+          if (!permanent_slug? && false == dirty_attributes.keys.map(&:name).empty?)
+            # Test for staleness. Does our dirty attribute change the slug
+            # source value? Lets do a test.
+            dirty_attributes.keys.map(&:name).each do |key|
+              prev_value = self.slug_source_value
+              prev_key = self.send(key)
+
+              # Modify the information at :key
+              self.send "#{key}=", nil
+
+              # Test the slug source value for differences. This might
+              # outright fail due to us setting the property to nil, so
+              # lets call it stale when that happens.
+              begin
+                if self.slug_source_value != prev_value
+                  #puts "Stale due to affected property
+                  stale = true
+                end
+              rescue
+                #puts "Stale due to affected property
+                stale = true
+              end
+
+              # Restore key to what it was before.
+              self.send "#{key}=", prev_key
+
+              break if stale == true
+
+            end
+
+          end
+
+          return true if stale == true
+
+          unless (dirty_attributes.keys.map(&:name) &
+                      (self.class.slug_options[:scope] || [])).empty?
+            #puts "Stale due to scope change"
+            stale = true
+          end
+
+          stale
         end
 
         private

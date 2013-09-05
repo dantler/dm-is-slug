@@ -283,6 +283,21 @@ describe DataMapper::Is::Slug do
         post = Post2.first
         post.slug.should == 'the-other-post'
       end
+
+      it "should not increase slug number when updates are NOPs" do
+        2.times{Post2.create :title => 'The Post', :content => 'The content.'}
+        @post.update(:title => "The Post").should be_true
+        @post.reload
+        @post.slug.should == 'the-post'
+      end
+
+      it "should not increment slug number when update doesn't affect slug" do
+        2.times{Post2.create :title => 'The Post', :content => 'The content.'}
+        @post.update(:content => "Some content.").should be_true
+        @post.reload
+        @post.slug.should == 'the-post'
+      end
+
     end
 
     describe 'scoping' do

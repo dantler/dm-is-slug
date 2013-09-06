@@ -252,17 +252,43 @@ module DataMapper
             end
           end
 
-          max_index = slugs.map do |s|
-            self.class.all(not_self_conditions.merge(scope_conditions).merge :slug.like => "#{s}-%")
+          index_array = slugs.map do |s|
+            # TODO: Will this break for slugs with large trailing digits which
+            # shorten the "s" string due to space constraints?
+            self.model.all(not_self_conditions.merge(scope_conditions).merge :slug.like => "#{s}-%")
           end.flatten.map do |r|
-            index = r.slug.gsub /^(#{slugs.join '|'})-/, ''
+            index = r.slug.gsub(/^(#{slugs.join '|'})-/, '')
             index =~ /\d+/ ? index.to_i : nil
-          end.compact.max
+          end.compact
 
-          new_index = if max_index.nil?
-            self.class.first(not_self_conditions.merge(scope_conditions).merge :slug => base_slug).present? ? 2 : 1
+          max_index = index_array.max
+
+          new_index = if index_array.empty?
+            self.class.first(not_self_conditions.merge(scope_conditions).merge :slug => base_slug).nil? ? 1 : 2
           else
-            max_index + 1
+            if max_index > index_array.count + 1
+              # Indicates we may have a sparse array.  We could reuse an index!
+              # Lets find the index which can be reused.
+              empty_index = nil
+              index_array.sort!
+
+              (2..index_array.max).each do |i|
+                if index_array[i-2] != i
+                  empty_index = i
+                  break
+                end
+              end
+
+              if empty_index.nil?
+                max_index + 1
+              else
+                empty_index
+              end
+
+            else
+              # Default to bumping the max index by 1 to use in our slug
+              max_index + 1
+            end
           end
 
           if new_index > 1

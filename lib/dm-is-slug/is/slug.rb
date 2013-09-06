@@ -157,13 +157,13 @@ module DataMapper
         def stale_slug?
           stale = false
           if new?
-            #puts "NEW and stale"
+            # slug is NEW and stale
             stale = true
           end
 
           if (permanent_slug? && (slug.nil? || slug.empty?)) ||
              (slug_source_value.nil? || slug_source_value.empty?)
-            #puts "Slug is empty and doesn't have a valid value"
+            # Slug is empty and doesn't have a valid value
             stale = true
           end
 
@@ -181,14 +181,14 @@ module DataMapper
 
               # Test the slug source value for differences. This might
               # outright fail due to us setting the property to nil, so
-              # lets call it stale when that happens.
+              # lets call it stale if that happens.
               begin
                 if self.slug_source_value != prev_value
-                  #puts "Stale due to affected property
+                  # slug is stale due to affected property
                   stale = true
                 end
               rescue
-                #puts "Stale due to affected property
+                # slug is stale due to affected property causing exception
                 stale = true
               end
 
@@ -205,7 +205,7 @@ module DataMapper
 
           unless (dirty_attributes.keys.map(&:name) &
                       (self.class.slug_options[:scope] || [])).empty?
-            #puts "Stale due to scope change"
+            # Stale due to scope change
             stale = true
           end
 
@@ -255,7 +255,7 @@ module DataMapper
           max_index = slugs.map do |s|
             self.class.all(not_self_conditions.merge(scope_conditions).merge :slug.like => "#{s}-%")
           end.flatten.map do |r|
-            index = r.slug.gsub /^(#{slugs.join '|'})-/, ''
+            index = r.slug.gsub(/^(#{slugs.join '|'})-/, '')
             index =~ /\d+/ ? index.to_i : nil
           end.compact.max
 

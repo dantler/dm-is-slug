@@ -291,7 +291,7 @@ describe DataMapper::Is::Slug do
         @post.slug.should == 'the-post'
       end
 
-      it "should not increment slug number when update doesn't affect slug" do
+      it "should not increment slug number when update doesn't affect slug generation" do
         2.times{Post2.create :title => 'The Post', :content => 'The content.'}
         @post.update(:content => "Some content.").should be_true
         @post.reload

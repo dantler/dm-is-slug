@@ -157,20 +157,20 @@ module DataMapper
         def stale_slug?
           stale = false
           if new?
-            #puts "NEW and stale"
+            # 1. slug is new
             stale = true
           end
 
           if (permanent_slug? && (slug.nil? || slug.empty?)) ||
              (slug_source_value.nil? || slug_source_value.empty?)
-            #puts "Slug is empty and doesn't have a valid value"
+            # 2. Slug is empty and doesn't have a valid value
             stale = true
           end
 
           return true if stale == true
 
           if (!permanent_slug? && false == dirty_attributes.keys.map(&:name).empty?)
-            # Test for staleness. Does our dirty attribute change the slug
+            # 3. Test for staleness. Does our dirty attribute change the slug
             # source value? Lets do a test.
             dirty_attributes.keys.map(&:name).each do |key|
               prev_value = self.slug_source_value
@@ -184,11 +184,9 @@ module DataMapper
               # lets call it stale when that happens.
               begin
                 if self.slug_source_value != prev_value
-                  #puts "Stale due to affected property
                   stale = true
                 end
               rescue
-                #puts "Stale due to affected property
                 stale = true
               end
 
@@ -205,7 +203,7 @@ module DataMapper
 
           unless (dirty_attributes.keys.map(&:name) &
                       (self.class.slug_options[:scope] || [])).empty?
-            #puts "Stale due to scope change"
+            # 4. Stale due to scope change
             stale = true
           end
 
